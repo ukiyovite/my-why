@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Abel’s little universe</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0b0c;--red:#c93a45;--line:#6b2a31;--text:#e6d8d4;--muted:#a58f8c}
+*{box-sizing:border-box;margin:0}
+html,body{background:var(--bg)}
+body{font-family:Inter,system-ui,sans-serif;color:var(--text);min-height:100vh;
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0);position:relative;overflow-x:hidden}
+/* foto Abel di belakang, transparan */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:var(--bgimg) center bottom/contain no-repeat;opacity:.38;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 30%,#000 70%,transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 30%,#000 70%,transparent 100%)}
+.wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:12vh 24px 60px;text-align:center}
+.eyebrow{font-size:.8rem;letter-spacing:.42em;text-transform:uppercase;color:var(--muted)}
+h1{margin:34px 0;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+  font-size:clamp(2.6rem,13vw,4.6rem);line-height:1.1;color:var(--red)}
+.lead{color:var(--text);opacity:.85;line-height:1.9;font-size:1.1rem}
+.menu{display:grid;gap:18px;margin-top:64px}
+.menu a,.back{display:flex;align-items:center;justify-content:center;gap:16px;min-height:86px;
+  border:1px solid var(--line);background:rgba(13,11,12,.55);backdrop-filter:blur(3px);
+  color:var(--text);text-decoration:none;text-transform:uppercase;letter-spacing:.14em;font-size:1.15rem}
+.menu a:active,.back:active{background:rgba(201,58,69,.2)}
+.menu svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2}
+.panel{display:none}
+.panel:target{display:block}
+.panel:target ~ .home{display:none}
+h2{font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--red);font-size:1.6rem;margin:10px 0 26px}
+.back{min-height:52px;font-size:.9rem;margin-bottom:34px}
+.gallery{columns:2 140px;column-gap:8px;text-align:left}
+.gallery button{display:block;width:100%;margin:0 0 8px;padding:0;border:0;background:#1a1416;cursor:zoom-in;break-inside:avoid}
+.gallery img{display:block;width:100%;height:auto}
+.video{aspect-ratio:16/9;margin-bottom:18px;border:1px solid var(--line)}
+.video iframe{width:100%;height:100%;border:0}
+.empty{color:var(--muted);border:1px dashed var(--line);padding:24px;line-height:1.6}
+.note{text-align:left;border-left:2px solid var(--red);padding:2px 0 2px 16px;margin-bottom:22px;line-height:1.6}
+.note b{display:block;margin-bottom:4px}
+dialog{border:0;background:transparent;max-width:96vw;max-height:92vh;padding:0}
+dialog::backdrop{background:rgba(5,4,5,.95)}
+dialog img{max-width:96vw;max-height:90vh;display:block}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+</style>
+</head>
+<body>
+<div class="bg" id="bg"></div>
+
+<div class="wrap">
+  <!-- RADIO -->
+  <section class="panel" id="radio">
+    <a class="back" href="#">← Kembali</a>
+    <h2>Abel radio</h2>
+    <div id="spotify"></div>
+  </section>
+
+  <!-- KONSER -->
+  <section class="panel" id="concert">
+    <a class="back" href="#">← Kembali</a>
+    <h2>Concert memories</h2>
+    <div class="gallery" id="gallery"></div>
+    <div style="height:26px"></div>
+    <div id="videos"></div>
+  </section>
+
+  <!-- ARSIP -->
+  <section class="panel" id="archive">
+    <a class="back" href="#">← Kembali</a>
+    <h2>My little archive</h2>
+    <div id="notes"></div>
+  </section>
+
+  <!-- HOME -->
+  <div class="home">
+    <p class="eyebrow">A little corner of my universe</p>
+    <h1>Abel’s little universe</h1>
+    <p class="lead">Welcome to my world.<br>A little archive of songs, memories<br>and everything Abel.</p>
+    <nav class="menu">
+      <a href="#radio"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Abel radio</a>
+      <a href="#concert"><svg viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><path d="M6 4l14 8-14 8z"/></svg>Concert memories</a>
+      <a href="#archive"><svg viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/></svg>My little archive</a>
+    </nav>
+  </div>
+</div>
+
+<dialog id="lightbox"><img alt=""></dialog>
+
+<script>
+/* ====== EDIT BAGIAN INI ====== */
+// Foto Abel buat background (upload ke repo, lebih bagus PNG transparan)
+const BACKGROUND = "photos/abel.png";
+// ID playlist Spotify (dari link: open.spotify.com/playlist/INI_IDNYA)
+const SPOTIFY_PLAYLIST = "";
+// Foto konser
+const PHOTOS = [
+  // "photos/1.jpg",
+];
+// ID video YouTube
+const VIDEOS = [
+  // "dQw4w9WgXcQ",
+];
+// Catatan / arsip kecil
+const NOTES = [
+  // {title:"Konser pertama", text:"Cerita singkat..."},
+];
+/* ============================= */
+
+const $ = id => document.getElementById(id);
+const empty = t => '<p class="empty">' + t + '</p>';
+
+// background (hilang sendiri kalau file belum ada)
+const probe = new Image();
+probe.onload = () => $("bg").style.setProperty("--bgimg", 'url("' + BACKGROUND + '")');
+probe.src = BACKGROUND;
+
+// radio
+$("spotify").innerHTML = SPOTIFY_PLAYLIST
+  ? '<iframe style="border:0;width:100%;height:420px" src="https://open.spotify.com/embed/playlist/' + SPOTIFY_PLAYLIST + '" allow="encrypted-media" loading="lazy"></iframe>'
+  : empty("Belum ada playlist. Isi SPOTIFY_PLAYLIST di index.html.");
+
+// galeri
+const box = $("lightbox"), boxImg = box.querySelector("img");
+if (!PHOTOS.length) $("gallery").outerHTML = empty("Belum ada foto. Isi daftar PHOTOS di index.html.");
+PHOTOS.forEach(src => {
+  const b = document.createElement("button"), i = new Image();
+  i.src = src; i.loading = "lazy"; i.alt = "Foto konser"; i.onerror = () => b.remove();
+  b.append(i); b.onclick = () => { boxImg.src = src; box.showModal(); };
+  $("gallery").append(b);
+});
+box.addEventListener("click", () => box.close());
+
+// video
+if (!VIDEOS.length) $("videos").innerHTML = empty("Belum ada video. Isi daftar VIDEOS di index.html.");
+VIDEOS.forEach(id => {
+  const d = document.createElement("div"); d.className = "video";
+  d.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '" title="Video konser" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+  $("videos").append(d);
+});
+
+// arsip
+if (!NOTES.length) $("notes").innerHTML = empty("Belum ada isi. Tambahkan catatan di daftar NOTES.");
+NOTES.forEach(n => {
+  const d = document.createElement("div"); d.className = "note";
+  const t = document.createElement("b"); t.textContent = n.title;
+  const p = document.createElement("span"); p.textContent = n.text;
+  d.append(t, p); $("notes").append(d);
+});
+</script>
+</body>
+</html>
