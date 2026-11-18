@@ -38,8 +38,12 @@ h2{font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--red
 .video{aspect-ratio:16/9;margin-bottom:18px;border:1px solid var(--line)}
 .video iframe{width:100%;height:100%;border:0}
 .empty{color:var(--muted);border:1px dashed var(--line);padding:24px;line-height:1.6}
-.note{text-align:left;border-left:2px solid var(--red);padding:2px 0 2px 16px;margin-bottom:22px;line-height:1.6}
-.note b{display:block;margin-bottom:4px}
+
+.music{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:5;display:flex;align-items:center;gap:10px;
+  padding:12px 18px;border:1px solid var(--line);background:rgba(13,11,12,.8);backdrop-filter:blur(4px);color:var(--text);
+  font:500 .8rem Inter,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.music svg{width:18px;height:18px;fill:currentColor}
+.music.on{border-color:var(--red);color:var(--red);box-shadow:0 0 14px rgba(201,58,69,.45)}
 dialog{border:0;background:transparent;max-width:96vw;max-height:92vh;padding:0}
 dialog::backdrop{background:rgba(5,4,5,.95)}
 dialog img{max-width:96vw;max-height:90vh;display:block}
@@ -67,12 +71,6 @@ dialog img{max-width:96vw;max-height:90vh;display:block}
     <div id="videos"></div>
   </section>
 
-  <!-- ARSIP -->
-  <section class="panel" id="archive">
-    <a class="back" href="#">← Kembali</a>
-    <h2>My little archive</h2>
-    <div id="notes"></div>
-  </section>
 
   <!-- HOME -->
   <div class="home">
@@ -82,10 +80,12 @@ dialog img{max-width:96vw;max-height:90vh;display:block}
     <nav class="menu">
       <a href="#radio"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Abel radio</a>
       <a href="#concert"><svg viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><path d="M6 4l14 8-14 8z"/></svg>Concert memories</a>
-      <a href="#archive"><svg viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/></svg>My little archive</a>
     </nav>
   </div>
 </div>
+
+<button class="music" id="music" type="button" aria-label="Putar musik"><svg viewBox="0 0 24 24" id="musicIcon"><path d="M6 4l14 8-14 8z"/></svg><span id="musicText">Play</span></button>
+<audio id="song" src="song.mp3" loop preload="none"></audio>
 
 <dialog id="lightbox"><img alt=""></dialog>
 
@@ -120,10 +120,6 @@ const CLIPS = [
 // ID video YouTube
 const VIDEOS = [
   // "dQw4w9WgXcQ",
-];
-// Catatan / arsip kecil
-const NOTES = [
-  // {title:"Konser pertama", text:"Cerita singkat..."},
 ];
 /* ============================= */
 
@@ -166,14 +162,20 @@ VIDEOS.forEach(id => {
   $("videos").append(d);
 });
 
-// arsip
-if (!NOTES.length) $("notes").innerHTML = empty("Belum ada isi. Tambahkan catatan di daftar NOTES.");
-NOTES.forEach(n => {
-  const d = document.createElement("div"); d.className = "note";
-  const t = document.createElement("b"); t.textContent = n.title;
-  const p = document.createElement("span"); p.textContent = n.text;
-  d.append(t, p); $("notes").append(d);
-});
+
+// musik latar (harus di-tap dulu, aturan browser)
+const song = $("song"), mbtn = $("music");
+const PLAY = "M6 4l14 8-14 8z", PAUSE = "M6 4h4v16H6zM14 4h4v16h-4z";
+function setMusic(on){
+  mbtn.classList.toggle("on", on);
+  $("musicText").textContent = on ? "Pause" : "Play";
+  $("musicIcon").firstElementChild.setAttribute("d", on ? PAUSE : PLAY);
+  mbtn.setAttribute("aria-label", on ? "Jeda musik" : "Putar musik");
+}
+mbtn.onclick = () => {
+  if (song.paused) song.play().then(() => setMusic(true)).catch(() => setMusic(false));
+  else { song.pause(); setMusic(false); }
+};
 </script>
 </body>
 </html>
